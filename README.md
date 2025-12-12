@@ -24,15 +24,11 @@ This project was created to simulate a real university/college management system
 - View personal info  
 - Display full bulletin  
 
----
-
 ### 👨‍🏫 **Enseignant**
 - Create / Modify / Delete examinations  
 - Enter student grades  
 - Validate and calculate final grades  
 - View statistics and exam results for their classes  
-
----
 
 ### 🧑‍💼 **Secrétaire**
 - Add / Modify / Delete users  
@@ -40,16 +36,12 @@ This project was created to simulate a real university/college management system
 - Display all students  
 - Manage administrative records  
 
----
-
 ### 🧑‍💼 **Chef de Programme**
 - Manage programs (add / edit / delete)  
 - Manage modules within a program  
 - Assign teachers  
 - Define coefficients and prerequis  
 - Validate yearly results  
-
----
 
 ### 🛠️ **Administrateur**
 - Full user CRUD  
@@ -70,24 +62,75 @@ This project was created to simulate a real university/college management system
 - **Mysqldump** (backup)
 - **ProcessBuilder** (backup & restore execution)
 
+---
+
+## 📁 Project Structure
+Gestion Scolarite/
+├── src/
+│ ├── db/
+│ │ └── DatabaseConnection.java
+│ ├── models/
+│ │ ├── Administrateur.java
+│ │ ├── ChefProgramme.java
+│ │ ├── Enseignant.java
+│ │ ├── Etudiant.java
+│ │ ├── Secretaire.java
+│ │ └── Utilisateur.java
+│ ├── services/
+│ │ ├── AdministrateurService.java
+│ │ ├── AuthService.java
+│ │ ├── ChefProgrammeService.java
+│ │ ├── ComboDataLoader.java
+│ │ ├── EnseignantService.java
+│ │ ├── EtudiantService.java
+│ │ └── SecretaireService.java
+│ ├── ui/
+│ │ ├── AdminDashboard.java
+│ │ ├── ChefProgrammeDashboard.java
+│ │ ├── EnseignantDashboard.java
+│ │ ├── EtudiantDashboard.java
+│ │ ├── LoginFrame.java
+│ │ └── SecretaireDashboard.java
+│ ├── ClientMain.java
+│ └── ServerMain.java
+├── lib/ # JAR dependencies (JFreeChart, etc.)
+├── out/ # Compiled classes
+├── database.sql # Database schema
+└── README.md
+
 
 ---
 
-## ▶️ How to Run (Development Mode)
+## ⚙️ Setup & Installation
 
-### **Prerequisites**
-✔ Install Java 17+  
-✔ Install XAMPP (MySQL)  
-✔ Import the SQL file into phpMyAdmin  
-✔ Add JAR dependencies (JFreeChart etc.) in IntelliJ  
+### Prerequisites
+- **Java 17+** installed and in PATH
+- **XAMPP** with MySQL running
+- **Git** (optional, for cloning)
 
-### **Run**
-Simply run:
+### 1. Clone the Repository
+```bash
+git clone <your-repository-url>
+cd "Gestion Scolarite"
+```
+Edit src/services/AdministrateurService.java:
+// Change from:
+// D:\xampp\mysql\bin\mysql.exe
+// To:
+C:\xampp\mysql\bin\mysql.exe
 
-```java
-public class Main {
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(LoginFrame::new);
-    }
-}
+## How to run :
+# Navigate to project directory
+cd "path\to\Gestion Scolarite"
 
+# Create out folder if not existing
+mkdir out 2>nul
+
+# Compile with ALL libraries from lib folder
+javac -d out -cp "lib\*" -encoding UTF-8 src\*.java src\db\*.java src\models\*.java src\services\*.java src\ui\*.java
+
+cd "path\to\Gestion Scolarite"
+java -cp "out;lib\*" ServerMain
+
+cd "path\to\Gestion Scolarite"
+java -cp "out;lib\*" ClientMain
