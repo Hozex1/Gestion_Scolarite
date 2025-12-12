@@ -132,10 +132,12 @@ mkdir out 2>nul
 ```bash
 javac -d out -cp "lib\*" -encoding UTF-8 src\*.java src\db\*.java src\models\*.java src\services\*.java src\ui\*.java
 ```
+# Run server :
 ```bash
 cd "path\to\Gestion Scolarite"
 java -cp "out;lib\*" ServerMain
 ```
+# Run client :
 ```bash
 cd "path\to\Gestion Scolarite"
 java -cp "out;lib\*" ClientMain
