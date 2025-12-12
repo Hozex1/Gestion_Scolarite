@@ -63,7 +63,7 @@ This project was created to simulate a real university/college management system
 - **ProcessBuilder** (backup & restore execution)
 
 ---
-
+```text
 ## 📁 Project Structure
 Gestion Scolarite/
 ├── src/
@@ -95,9 +95,8 @@ Gestion Scolarite/
 │ └── ServerMain.java
 ├── lib/ # JAR dependencies (JFreeChart, etc.)
 ├── out/ # Compiled classes
-├── database.sql # Database schema
-└── README.md
-
+└── 
+```
 
 ---
 
@@ -114,23 +113,30 @@ git clone <your-repository-url>
 cd "Gestion Scolarite"
 ```
 Edit src/services/AdministrateurService.java:
-// Change from:
-// D:\xampp\mysql\bin\mysql.exe
-// To:
-C:\xampp\mysql\bin\mysql.exe
+- Change from:
+- D:\xampp\mysql\bin\mysql.exe
+- To:
+- C:\xampp\mysql\bin\mysql.exe
 
 ## How to run :
 # Navigate to project directory
+```bash
 cd "path\to\Gestion Scolarite"
+```
 
 # Create out folder if not existing
+```bash
 mkdir out 2>nul
-
+```
 # Compile with ALL libraries from lib folder
+```bash
 javac -d out -cp "lib\*" -encoding UTF-8 src\*.java src\db\*.java src\models\*.java src\services\*.java src\ui\*.java
-
+```
+```bash
 cd "path\to\Gestion Scolarite"
 java -cp "out;lib\*" ServerMain
-
+```
+```bash
 cd "path\to\Gestion Scolarite"
 java -cp "out;lib\*" ClientMain
+```
