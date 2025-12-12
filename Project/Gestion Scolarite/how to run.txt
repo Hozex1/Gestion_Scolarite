@@ -1,0 +1,13 @@
+cd "directory of project"
+
+# Create out folder
+mkdir out 2>nul
+
+# Compile with ALL libraries from lib folder
+javac -d out -cp "lib\*" -encoding UTF-8 src\*.java src\db\*.java src\models\*.java src\services\*.java src\ui\*.java
+
+# For Server :
+java -cp "out;lib\*" ServerMain
+
+# For Client:
+java -cp "out;lib\*" ClientMain
