@@ -1,6 +1,6 @@
 cd "directory of project"
 
-# Create out folder
+# Create out folder if not existing
 mkdir out 2>nul
 
 # Compile with ALL libraries from lib folder

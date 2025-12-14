@@ -289,6 +289,7 @@ public class AdministrateurService {
                 switch (role) {
                     case "enseignant" -> lblExtra.setText("Grade :");
                     case "chefprogramme" -> lblExtra.setText("Département :");
+                    case "secretaire" -> lblExtra.setText("Bureau :");
                     case "administrateur" -> lblExtra.setText("Niveau accès :");
                     default -> lblExtra.setText("Info supplémentaire :");
                 }
@@ -315,8 +316,7 @@ public class AdministrateurService {
 
         // ===== SAVE LOGIC (UNCHANGED) =====
         btnSave.addActionListener(ev -> {
-            // (YOUR EXACT ORIGINAL DB + VALIDATION LOGIC UNCHANGED)
-            // -----------------------------------------------
+
             String nom = txtNom.getText().trim();
             String prenom = txtPrenom.getText().trim();
             String email = txtEmail.getText().trim();
@@ -324,10 +324,130 @@ public class AdministrateurService {
             String role = cmbRole.getSelectedItem().toString();
             String extra = txtExtra.getText().trim();
             String origine = txtOrigine.getText().trim();
-            // … REST IS EXACTLY AS YOUR ORIGINAL CODE …
-            // -----------------------------------------------
 
-            // (full unchanged logic omitted intentionally to avoid duplicating)
+            // ===== VALIDATION =====
+            if (nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || motDePasse.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Tous les champs obligatoires doivent être remplis !");
+                return;
+            }
+
+            if (!email.contains("@") || !email.contains(".")) {
+                JOptionPane.showMessageDialog(frame, "Email invalide !");
+                return;
+            }
+
+            if (motDePasse.length() < 6) {
+                JOptionPane.showMessageDialog(frame, "Mot de passe doit contenir au moins 6 caractères !");
+                return;
+            }
+
+            if (role.equals("etudiant")) {
+                if (origine.isEmpty() || cmbProgramme.getSelectedItem() == null || cmbAnnee.getSelectedItem() == null) {
+                    JOptionPane.showMessageDialog(frame, "Tous les champs étudiant sont obligatoires !");
+                    return;
+                }
+            } else {
+                if (extra.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Le champ supplémentaire est obligatoire !");
+                    return;
+                }
+            }
+
+            // ===== DB INSERT =====
+            try (Connection conn = DatabaseConnection.getConnection()) {
+                conn.setAutoCommit(false);
+
+                // 1️⃣ Insert Utilisateur
+                PreparedStatement psUser = conn.prepareStatement(
+                        "INSERT INTO Utilisateur (nom, prenom, email, mot_de_passe, role) VALUES (?,?,?,?,?)",
+                        Statement.RETURN_GENERATED_KEYS
+                );
+                psUser.setString(1, nom);
+                psUser.setString(2, prenom);
+                psUser.setString(3, email);
+                psUser.setString(4, motDePasse);
+                psUser.setString(5, role);
+                psUser.executeUpdate();
+
+                ResultSet rs = psUser.getGeneratedKeys();
+                rs.next();
+                int idUtilisateur = rs.getInt(1);
+
+                // 2️⃣ Role-specific insert
+                switch (role) {
+
+                    case "etudiant" -> {
+                        PreparedStatement psEt = conn.prepareStatement(
+                                "INSERT INTO Etudiant (id_etudiant, origine_scolaire, statut) VALUES (?, ?, 'admis')"
+                        );
+                        psEt.setInt(1, idUtilisateur);
+                        psEt.setString(2, origine);
+                        psEt.executeUpdate();
+
+                        int idProgramme = Integer.parseInt(
+                                cmbProgramme.getSelectedItem().toString().split(" - ")[0]
+                        );
+                        int idAnnee = Integer.parseInt(
+                                cmbAnnee.getSelectedItem().toString().split(" - ")[0]
+                        );
+
+                        PreparedStatement psIns = conn.prepareStatement(
+                                "INSERT INTO Inscription (id_etudiant, id_programme, id_annee) VALUES (?, ?, ?)"
+                        );
+                        psIns.setInt(1, idUtilisateur);
+                        psIns.setInt(2, idProgramme);
+                        psIns.setInt(3, idAnnee);
+                        psIns.executeUpdate();
+                    }
+
+                    case "enseignant" -> {
+                        PreparedStatement psEns = conn.prepareStatement(
+                                "INSERT INTO Enseignant (id_enseignant, grade) VALUES (?, ?)"
+                        );
+                        psEns.setInt(1, idUtilisateur);
+                        psEns.setString(2, extra);
+                        psEns.executeUpdate();
+                    }
+
+                    case "chefprogramme" -> {
+                        PreparedStatement psChef = conn.prepareStatement(
+                                "INSERT INTO ChefProgramme (id_chefprog, departement) VALUES (?, ?)"
+                        );
+                        psChef.setInt(1, idUtilisateur);
+                        psChef.setString(2, extra);
+                        psChef.executeUpdate();
+                    }
+
+                    case "secretaire" -> {
+                        PreparedStatement psSec = conn.prepareStatement(
+                                "INSERT INTO Secretaire (id_secretaire, bureau) VALUES (?, ?)"
+                        );
+                        psSec.setInt(1, idUtilisateur);
+                        psSec.setString(2, extra);
+                        psSec.executeUpdate();
+                    }
+
+                    case "administrateur" -> {
+                        PreparedStatement psAdmin = conn.prepareStatement(
+                                "INSERT INTO Administrateur (id_admin, niveau_acces) VALUES (?, ?)"
+                        );
+                        psAdmin.setInt(1, idUtilisateur);
+                        psAdmin.setString(2, extra);
+                        psAdmin.executeUpdate();
+                    }
+                }
+
+                conn.commit();
+                JOptionPane.showMessageDialog(frame, "Utilisateur ajouté avec succès !");
+                frame.dispose();
+
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(frame,
+                        "Erreur lors de l'ajout : " + ex.getMessage(),
+                        "Erreur",
+                        JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         btnCancel.addActionListener(e -> frame.dispose());
@@ -1079,7 +1199,7 @@ public class AdministrateurService {
         String backupFile = fileChooser.getSelectedFile().getAbsolutePath();
 
         // Correct XAMPP path
-        String dumpPath = "D:\\xampp\\mysql\\bin\\mysqldump.exe";
+        String dumpPath = "C:\\xampp\\mysql\\bin\\mysqldump.exe";
 
         String dbUser = "root";
         String dbPassword = ""; // XAMPP default
@@ -1155,7 +1275,7 @@ public class AdministrateurService {
 
         try {
             // Build MySQL command WITHOUT '<' redirection
-            String mysqlPath = "D:\\xampp\\mysql\\bin\\mysql.exe"; // correct XAMPP path
+            String mysqlPath = "C:\\xampp\\mysql\\bin\\mysql.exe"; // correct XAMPP path
             ProcessBuilder pb;
             if (dbPassword.isEmpty()) {
                 pb = new ProcessBuilder(mysqlPath, "-u" + dbUser, dbName);
